@@ -1,364 +1,445 @@
+# Princess Day — Single-Page Card
+
+This document contains the full project files: `index.html`, `style.css` and `script.js`.
+
+---
+
+## index.html
+
+```html
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Princess Day — A Note For You, Baccha 💝</title>
-
-  <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
-
-  <style>
-    :root{
-      --bg1: #ffe6f0;
-      --bg2: #fff1f6;
-      --accent: #ff7fbf;
-      --soft: rgba(255,127,191,0.12);
-      --glass: rgba(255,255,255,0.7);
-      --card-shadow: 0 10px 30px rgba(220,50,120,0.12);
-      --heart-size: 72px;
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%;margin:0;font-family:Poppins,system-ui,Arial;}
-    body{
-      background: linear-gradient(180deg,var(--bg1),var(--bg2));
-      overflow:hidden;
-      color:#333;
-    }
-
-    /* Fullscreen section pages */
-    .page{
-      position:absolute;inset:0;display:none;padding:24px;overflow:auto;
-      -webkit-overflow-scrolling:touch;
-    }
-    .page.active{display:block}
-
-    /* common container */
-    .wrap{max-width:900px;margin:0 auto;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}
-
-    /* Welcome page styles */
-    .welcome{
-      text-align:center;position:relative;
-    }
-    .title{font-family:'Dancing Script',cursive;font-size:36px;color:#b0006b;margin-bottom:12px}
-    .subtitle{font-size:18px;color:#6b2b4a;margin-bottom:18px}
-
-    /* face image */
-    .face-wrap{width:220px;height:220px;border-radius:50%;overflow:hidden;display:inline-block;box-shadow:0 12px 30px rgba(197,60,123,0.18);border:6px solid rgba(255,255,255,0.6);position:relative}
-    .face-wrap img{width:100%;height:100%;object-fit:cover;display:block}
-    .face-glow{position:absolute;inset:-6px;border-radius:50%;box-shadow:0 0 40px 8px rgba(255,180,200,0.45);pointer-events:none;animation:heartbeat 2s ease-in-out infinite}
-    @keyframes heartbeat{0%,100%{transform:scale(1)}45%{transform:scale(1.06)}}
-
-    /* floating stickers */
-    .stickers{position:absolute;inset:0;pointer-events:none}
-    .sticker{position:absolute;width:64px;height:64px;background-size:contain;background-repeat:no-repeat;opacity:0.95;transform-origin:center;animation:floaty 6s ease-in-out infinite}
-    @keyframes floaty{0%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(-18px) rotate(6deg)}100%{transform:translateY(0) rotate(-6deg)}}
-
-    /* heart button */
-    .heart-btn{--s: var(--heart-size);width:var(--s);height:var(--s);border-radius:36px;background:linear-gradient(180deg,#ffd6ea,#ffb3d9);border:none;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(255,100,150,0.18);position:relative}
-    .heart-btn::after{content:'❤';font-size:28px;color:#fff;filter:drop-shadow(0 2px 6px rgba(180,30,90,0.22))}
-    .heart-btn.glow{animation:btnglow 2s infinite}
-    @keyframes btnglow{0%{transform:scale(1)}50%{transform:scale(1.05)}100%{transform:scale(1)}}
-
-    /* envelope */
-    .envelope-wrap{width:320px;height:220px;position:relative;display:flex;align-items:center;justify-content:center}
-    .envelope{width:300px;height:180px;background:linear-gradient(180deg,#fff,#ffeef8);border-radius:12px;box-shadow:0 18px 40px rgba(200,50,110,0.12);position:relative;overflow:visible}
-    .envelope .flap{position:absolute;left:0;right:0;top:-36px;height:72px;background:linear-gradient(180deg,#ffd9ec,#ffc0e0);transform-origin:center top;border-radius:12px;box-shadow:0 10px 30px rgba(220,80,140,0.08)}
-    .envelope .card{position:absolute;left:50%;top:100%;transform:translate(-50%,0);width:260px;height:120px;background:linear-gradient(180deg,#fff,#fff6fb);border-radius:10px;box-shadow:0 10px 30px rgba(150,60,110,0.08);display:flex;align-items:center;justify-content:center;padding:16px;opacity:0}
-    .envelope.glossy{background:linear-gradient(180deg,#fff,#fff4fb);}
-
-    /* envelope animated states */
-    .envelope.animate .flap{animation:flap 1s forwards}
-    .envelope.animate .card{animation:slideout 1s 0.6s forwards}
-    @keyframes flap{0%{transform:rotateX(0)}50%{transform:rotateX(80deg)}100%{transform:rotateX(0) translateY(-20px)}}
-    @keyframes slideout{0%{transform:translate(-50%,0);opacity:0}100%{transform:translate(-50%,-140px);opacity:1}}
-
-    /* glitter particles */
-    .glitter{position:absolute;inset:0;pointer-events:none}
-    .glitter .p{position:absolute;width:8px;height:8px;border-radius:50%;background:linear-gradient(180deg,#fff9,#ffd6ef);opacity:0;animation:glint 1.2s ease-out forwards}
-    @keyframes glint{0%{opacity:0;transform:translateY(0) scale(0.2)}30%{opacity:1}100%{opacity:0;transform:translateY(-120px) scale(1.2)}}
-
-    /* stacked cards (bears) */
-    .cards{display:flex;flex-direction:column;gap:18px;width:100%;max-width:420px}
-    .card-item{background:var(--glass);backdrop-filter:blur(6px);border-radius:16px;padding:12px;box-shadow:var(--card-shadow);display:flex;flex-direction:column;align-items:center}
-    .card-flip{width:180px;height:140px;border-radius:12px;overflow:hidden;display:flex;align-items:center;justify-content:center}
-    .card-flip img{width:100%;height:100%;object-fit:cover}
-    .card-item .msg{margin-top:10px;font-size:16px;color:#6b2b4a}
-
-    /* flip animation: slow, soft, loop */
-    .card-item .card-flip{animation:flipit 8s linear infinite}
-    @keyframes flipit{0%{transform:rotateY(0)}50%{transform:rotateY(180deg)}100%{transform:rotateY(360deg)}}
-
-    /* music player */
-    .player{display:flex;flex-direction:column;align-items:center;gap:12px;padding:18px;background:linear-gradient(180deg,rgba(255,255,255,0.9),rgba(255,245,250,0.9));border-radius:18px;box-shadow:var(--card-shadow);max-width:420px}
-    .player .play-heart{width:90px;height:90px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;border:none;cursor:pointer;background:linear-gradient(180deg,#ffdeea,#ffc2dc);box-shadow:0 12px 30px rgba(220,60,120,0.12)}
-    .player .label{font-size:15px;font-family:'Dancing Script',cursive;color:#9b2a5f}
-
-    /* final message */
-    .final-card{background:linear-gradient(180deg,#fff,#fff7fb);padding:24px;border-radius:18px;box-shadow:0 18px 40px rgba(200,80,140,0.08);text-align:center}
-    .final-card p{font-size:18px;color:#5b2340;line-height:1.5}
-
-    /* petals (cherry blossoms) */
-    .petal{position:fixed;width:14px;height:14px;background:radial-gradient(circle at 40% 30%,#fff,#ffc0e0);border-radius:50% 50% 30% 30%;opacity:0.9;pointer-events:none}
-
-    /* responsive tweaks */
-    @media (max-width:600px){
-      .face-wrap{width:160px;height:160px}
-      .title{font-size:28px}
-      .heart-btn{--s:60px}
-      .card-flip{width:140px;height:110px}
-    }
-  </style>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- Single audio element used for all tracks -->
+  <audio id="global-audio" preload="metadata"></audio>
 
-  <!-- 7 Pages inside single file -->
-  <section id="page1" class="page active">
-    <div class="wrap welcome">
-      <div class="stickers">
-        <div class="sticker" style="left:6%;top:20%;width:70px;height:70px;background-image:url('sticker-heart.png');animation-duration:6s"></div>
-        <div class="sticker" style="right:8%;top:18%;width:56px;height:56px;background-image:url('sticker-bear.png');animation-duration:7s"></div>
+  <main id="card" class="card-root">
+    <!-- PAGE 1: Welcome -->
+    <section id="page1" class="page" tabindex="-1">
+      <div class="page-inner">
+        <h1 class="title">A Note For You, Baccha 💝</h1>
+        <h2 class="subtitle">Hey Princess! 💕</h2>
+        <p class="lead">I wanted to do something special for you…</p>
+
+        <div class="photo-wrap" aria-hidden="false">
+          <img src="assets/images/gf-photo.jpg" alt="Photo of my princess" class="gf-photo">
+        </div>
+
+        <button id="toPage2" class="big-btn" aria-label="Open My Heart">Open My Heart ♡</button>
       </div>
+      <div class="hearts particles"></div>
+    </section>
 
-      <h1 class="title">A Note For You, Baccha 💗</h1>
-      <div class="subtitle">Happy Princess Day, meri pyaari jaan 💖</div>
+    <!-- PAGE 2: Envelope -->
+    <section id="page2" class="page hidden" tabindex="-1">
+      <div class="page-inner">
+        <h2 class="page-heading">An envelope for you 💌</h2>
+        <div class="envelope-scene">
+          <div class="envelope" id="envelope">
+            <div class="envelope-flap" id="envelope-flap" aria-hidden="true"></div>
+            <div class="envelope-body"></div>
+            <div class="letter hidden" id="letter" role="article" aria-label="Love letter">
+              <p class="letter-text">My dearest Princess — open and feel my heart. 💕</p>
+            </div>
+          </div>
+          <div class="confetti" id="confetti" aria-hidden="true"></div>
+        </div>
 
-      <div class="face-wrap" aria-hidden="true">
-        <!-- Replace 'face.jpg' with your provided face image -->
-        <img src="face.jpg" alt="Your face">
-        <div class="face-glow"></div>
+        <div class="controls">
+          <button id="openLetterBtn" class="big-btn" aria-label="Open The Letter">Open The Letter ♡</button>
+          <button id="skipEnvelope" class="link-btn" aria-label="Skip animation and continue">Skip Animation → Continue</button>
+        </div>
       </div>
+      <div class="hearts particles"></div>
+    </section>
 
-      <div style="height:26px"></div>
+    <!-- PAGE 3: Love Letter -->
+    <section id="page3" class="page hidden" tabindex="-1">
+      <div class="page-inner">
+        <h2 class="page-heading">My Love Letter 💜</h2>
+        <div class="letter-card" role="region" aria-label="Love message">
+          <p class="message">You are my princess, JAANA. I love you so much, BACCHA.
+          <br><br> You are my everything.
+          <br><br> I am always with you, I love you every day.
+          <br><br> My love will never decrease for you.</p>
+          <img src="assets/stickers/sticker1.png" alt="cute sticker" class="sticker">
+        </div>
+        <button id="toPage4" class="big-btn" aria-label="Continue to playlist">Continue ♡</button>
+      </div>
+    </section>
 
-      <button class="heart-btn glow" onclick="showPage(2)" aria-label="Next"> </button>
-    </div>
-  </section>
-
-  <section id="page2" class="page">
-    <div class="wrap" style="gap:18px">
-      <div class="envelope-wrap">
-        <div id="envelope" class="envelope glossy">
-          <div class="flap"></div>
-          <div class="card"> <!-- the inner card content -->
-            <div style="text-align:center;padding:8px;font-size:16px;color:#6b2b4a">From the moment I met you, everything became beautiful, Baccha 💞</div>
+    <!-- PAGE 4: Playlist & Player -->
+    <section id="page4" class="page hidden" tabindex="-1">
+      <div class="page-inner">
+        <h2 class="page-heading">Playlist & Music Player 🎧</h2>
+        <div class="tracks" role="list" aria-label="Song list">
+          <div class="track" data-src="assets/music/track1.mp3" data-title="Tumsa Koi Pyara">
+            <img src="assets/images/track1.jpg" alt="Tumsa Koi Pyara artwork" class="track-art">
+            <div class="track-title">Tumsa Koi Pyara</div>
+          </div>
+          <div class="track" data-src="assets/music/track2.mp3" data-title="Hume Tumse Pyar Kitna">
+            <img src="assets/images/track2.jpg" alt="Hume Tumse Pyar Kitna artwork" class="track-art">
+            <div class="track-title">Hume Tumse Pyar Kitna</div>
+          </div>
+          <div class="track" data-src="assets/music/track3.mp3" data-title="Ye Tune Kya Kiya">
+            <img src="assets/images/track3.jpg" alt="Ye Tune Kya Kiya artwork" class="track-art">
+            <div class="track-title">Ye Tune Kya Kiya</div>
           </div>
         </div>
-        <div class="glitter" id="glitter"></div>
-      </div>
 
-      <div style="margin-top:12px">
-        <button class="heart-btn" onclick="triggerEnvelope()"></button>
-      </div>
-
-      <div style="margin-top:18px">
-        <button class="heart-btn glow" onclick="showPage(3)"></button>
-      </div>
-    </div>
-  </section>
-
-  <section id="page3" class="page">
-    <div class="wrap" style="align-items:center;justify-content:flex-start;padding-top:54px">
-      <h2 class="title" style="font-size:28px">Love Bears 🧸💘</h2>
-      <div class="cards" style="margin-top:18px">
-        <div class="card-item">
-          <div class="card-flip"><img src="bear1.gif" alt="bear 1"></div>
-          <div class="msg">You’re my cutest happiness.</div>
+        <div class="player" role="region" aria-label="Music player">
+          <div class="now-playing" id="nowPlaying">Not Playing</div>
+          <div class="player-controls">
+            <button id="playPause" class="icon-btn" aria-label="Play or pause">▶️</button>
+            <div class="progress-wrap">
+              <input id="seekBar" type="range" min="0" max="100" value="0" aria-label="Seek" />
+              <div class="time">
+                <span id="currentTime">0:00</span> / <span id="duration">0:00</span>
+              </div>
+            </div>
+            <input id="volume" type="range" min="0" max="1" step="0.01" value="0.8" aria-label="Volume control" />
+          </div>
         </div>
-        <div class="card-item">
-          <div class="card-flip"><img src="bear2.gif" alt="bear 2"></div>
-          <div class="msg">You make my world soft and warm.</div>
+
+        <button id="toPage5" class="big-btn" aria-label="Continue to special messages">Continue to Special Messages ♡</button>
+      </div>
+    </section>
+
+    <!-- PAGE 5: Special Messages -->
+    <section id="page5" class="page hidden" tabindex="-1">
+      <div class="page-inner">
+        <h2 class="page-heading">Special Messages 🌸💗</h2>
+        <div class="gif-grid">
+          <div class="gif-card" tabindex="0">
+            <div class="gif-inner">
+              <img class="gif" src="assets/gifs/bear1.gif" alt="Bear 1 gif">
+            </div>
+            <div class="gif-text">I Love You So Much, Baccha. 💕</div>
+          </div>
+          <div class="gif-card" tabindex="0">
+            <div class="gif-inner">
+              <img class="gif" src="assets/gifs/bear2.gif" alt="Bear 2 gif">
+            </div>
+            <div class="gif-text">You Are My Everything, Jaana. 💗</div>
+          </div>
+          <div class="gif-card" tabindex="0">
+            <div class="gif-inner">
+              <img class="gif" src="assets/gifs/bear3.gif" alt="Bear 3 gif">
+            </div>
+            <div class="gif-text">Once Again, Happy Princess Day, Pagli! 🌸</div>
+          </div>
         </div>
-        <div class="card-item">
-          <div class="card-flip"><img src="bear3.gif" alt="bear 3"></div>
-          <div class="msg">Every moment with you feels special.</div>
-        </div>
+
+        <button id="replayBtn" class="big-btn" aria-label="Replay the card">Replay The Card ♡</button>
       </div>
+    </section>
 
-      <div style="margin-top:20px">
-        <button class="heart-btn glow" onclick="showPage(4)"></button>
-      </div>
-    </div>
-  </section>
+  </main>
 
-  <section id="page4" class="page">
-    <div class="wrap">
-      <h2 class="title">Tumsa Koi Pyaara 🎵</h2>
-      <div class="player">
-        <button class="play-heart" id="play1" onclick="toggleAudio(1)">❤</button>
-        <div class="label">For the girl more pyaari than this song 💗</div>
-      </div>
-
-      <audio id="audio1" src="audio1.mp3"></audio>
-
-      <div style="margin-top:26px">
-        <button class="heart-btn glow" onclick="showPage(5)"></button>
-      </div>
-    </div>
-  </section>
-
-  <section id="page5" class="page">
-    <div class="wrap">
-      <h2 class="title">Hume Tumse Pyar Kitna 🎶</h2>
-      <div class="player">
-        <button class="play-heart" id="play2" onclick="toggleAudio(2)">❤</button>
-        <div class="label">For the girl more pyaari than this song 💗</div>
-      </div>
-
-      <audio id="audio2" src="audio2.mp3"></audio>
-
-      <div style="margin-top:26px">
-        <button class="heart-btn glow" onclick="showPage(6)"></button>
-      </div>
-    </div>
-  </section>
-
-  <section id="page6" class="page">
-    <div class="wrap">
-      <h2 class="title">Ye Tune Kya Kiya 🎼</h2>
-      <div class="player">
-        <button class="play-heart" id="play3" onclick="toggleAudio(3)">❤</button>
-        <div class="label">For the girl more pyaari than this song 💗</div>
-      </div>
-
-      <audio id="audio3" src="audio3.mp3"></audio>
-
-      <div style="margin-top:26px">
-        <button class="heart-btn glow" onclick="showPage(7)"></button>
-      </div>
-    </div>
-  </section>
-
-  <section id="page7" class="page">
-    <div class="wrap">
-      <div class="final-card">
-        <p>Thank you for being the best part of my life, Baccha.<br>Happy Princess Day 💖✨</p>
-      </div>
-
-      <div style="height:20px"></div>
-      <div>
-        <button class="heart-btn" onclick="replayCard()"></button>
-      </div>
-    </div>
-  </section>
-
-  <script>
-    // Page control
-    function showPage(n){
-      // hide all
-      const pages = document.querySelectorAll('.page');
-      pages.forEach(p=>p.classList.remove('active'));
-      const target = document.getElementById('page'+n);
-      if(target) target.classList.add('active');
-      // stop audios when navigating away
-      stopAllAudio();
-      // if navigating to envelope page, reset envelope
-      if(n===2){resetEnvelope();}
-    }
-
-    function replayCard(){
-      showPage(1);
-    }
-
-    /* Envelope animation with glitter particles */
-    const envelopeEl = document.getElementById('envelope');
-    const glitterEl = document.getElementById('glitter');
-    function triggerEnvelope(){
-      if(!envelopeEl) return;
-      envelopeEl.classList.remove('animate');
-      // create glitter particles
-      for(let i=0;i<18;i++){
-        const p = document.createElement('div');
-        p.className='p';
-        p.style.left = Math.random()*80 + 10 + '%';
-        p.style.top = Math.random()*30 + 50 + '%';
-        p.style.background = 'radial-gradient(circle,#fff,#ffd6ef)';
-        p.style.animationDelay = (i*0.03)+'s';
-        glitterEl.appendChild(p);
-        // remove after animation
-        setTimeout(()=>p.remove(),1400+i*30);
-      }
-
-      // trigger envelope animations
-      setTimeout(()=>{
-        envelopeEl.classList.add('animate');
-      },50);
-    }
-    function resetEnvelope(){
-      if(!envelopeEl) return;
-      envelopeEl.classList.remove('animate');
-      // clear glitter
-      if(glitterEl) glitterEl.innerHTML='';
-    }
-
-    // Petals generator (falls across page1 for ambience)
-    function spawnPetal(){
-      const p = document.createElement('div');
-      p.className='petal';
-      const startX = Math.random()*100;
-      p.style.left = startX + 'vw';
-      p.style.top = '-4vh';
-      p.style.transform = 'rotate('+ (Math.random()*360) +'deg)';
-      document.body.appendChild(p);
-      const duration = 5000 + Math.random()*7000;
-      p.animate([
-        {transform: 'translateY(0) rotate(0deg)', opacity:1},
-        {transform: 'translateY(120vh) rotate(180deg)', opacity:0.6}
-      ],{duration:duration,iterations:1,easing:'linear'});
-      setTimeout(()=>p.remove(),duration+100);
-    }
-    // create burst of petals at load and gentle spawn
-    for(let i=0;i<12;i++) setTimeout(spawnPetal, i*250);
-    setInterval(()=>{ if(document.getElementById('page1') && document.getElementById('page1').classList.contains('active')) spawnPetal(); },1200);
-
-    // Audio controls — only one plays at a time
-    function stopAllAudio(){
-      ['audio1','audio2','audio3'].forEach(id=>{
-        const a = document.getElementById(id);
-        if(a){a.pause();a.currentTime=0;}
-      });
-      ['play1','play2','play3'].forEach(id=>{
-        const b = document.getElementById(id); if(b) b.textContent='❤';
-      });
-    }
-
-    function toggleAudio(n){
-      const id = 'audio'+n; const btn = document.getElementById('play'+n);
-      const a = document.getElementById(id);
-      if(!a) return;
-      // stop others
-      ['audio1','audio2','audio3'].forEach(k=>{ if(k!==id){const o=document.getElementById(k); if(o){o.pause();o.currentTime=0;}}});
-      // update buttons
-      ['play1','play2','play3'].forEach(x=>{const el=document.getElementById(x); if(el) el.textContent='❤';});
-
-      if(a.paused){
-        a.play().catch(()=>{ /* autoplay might be blocked on mobile — user must tap */ });
-        if(btn) btn.textContent='❚❚';
-      } else { a.pause(); if(btn) btn.textContent='❤'; }
-
-      // when ended, reset button
-      a.onended = ()=>{ if(btn) btn.textContent='❤'; }
-    }
-
-    // Accessibility: allow keyboard navigation for next buttons
-    document.addEventListener('keydown', (e)=>{
-      if(e.key==='ArrowRight'){
-        // find current page
-        const pages = [...document.querySelectorAll('.page')];
-        const idx = pages.findIndex(p=>p.classList.contains('active'));
-        if(idx>=0 && idx < pages.length-1) showPage(idx+2);
-      }
-    });
-
-    // On load: make sure page1 active
-    window.addEventListener('load', ()=>{ showPage(1); });
-
-    /* Notes for you:
-      - Replace face.jpg with your face image filename.
-      - Replace bear1.gif / bear2.gif / bear3.gif with your GIF filenames.
-      - Replace audio1.mp3 / audio2.mp3 / audio3.mp3 with the 3 music files you provide.
-      - All pages are inside this single HTML file; navigation uses showPage(pageNumber).
-    */
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
+```
+
+---
+
+## style.css
+
+```css
+:root{
+  --pink1:#ffd6e8;
+  --pink2:#ffb3d1;
+  --purple1:#e9d6ff;
+  --glass: rgba(255,255,255,0.6);
+  --shadow: 0 6px 18px rgba(0,0,0,0.08);
+  --accent: rgba(255,255,255,0.3);
+  font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+}
+*{box-sizing:border-box}
+html,body,#card{height:100%;}
+body{margin:0;background:linear-gradient(180deg,var(--pink1),var(--pink2));-webkit-font-smoothing:antialiased;color:#222}
+.card-root{display:flex;align-items:center;justify-content:center;height:100vh;}
+.page{width:100%;height:100vh;padding:28px;display:flex;align-items:center;justify-content:center;position:relative}
+.page-inner{max-width:960px;width:100%;text-align:center}
+.hidden{display:none}
+.title{font-family:'Dancing Script', serif;font-size:40px;margin:0;color:#9b375f;text-shadow:0 6px 18px rgba(155,55,95,0.08)}
+.subtitle{font-size:20px;margin:6px 0 18px;color:#7a2b57}
+.lead{font-size:16px;margin-bottom:18px;color:#5e2b4a}
+.big-btn{background:linear-gradient(90deg,#ffb3d1,#ffd6e8);border:none;padding:14px 22px;border-radius:18px;font-size:18px;box-shadow:var(--shadow);cursor:pointer;margin-top:18px}
+.big-btn:focus{outline:3px solid rgba(155,55,95,0.15)}
+.link-btn{background:transparent;border:none;color:#7a2b57;text-decoration:underline;margin-left:14px;cursor:pointer}
+.link-btn:focus{outline:3px solid rgba(155,55,95,0.15)}
+.photo-wrap{display:flex;justify-content:center;margin:18px 0}
+.gf-photo{width:220px;height:220px;object-fit:cover;border-radius:18px;border:6px solid rgba(255,255,255,0.6);box-shadow:0 10px 30px rgba(153,63,93,0.12);transform:translateY(0);animation:float 6s ease-in-out infinite}
+@keyframes float{0%{transform:translateY(0)}50%{transform:translateY(-8px) scale(1.02)}100%{transform:translateY(0)}}
+.particles{position:absolute;inset:0;pointer-events:none}
+.hearts::before{content:'';position:absolute;left:20%;top:10%;width:12px;height:12px;background:radial-gradient(circle at 30% 30%,#fff,transparent);border-radius:50%;box-shadow:0 0 24px rgba(255,200,240,0.4)}
+
+/* Envelope */
+.envelope-scene{display:flex;align-items:center;justify-content:center;margin:28px 0}
+.envelope{width:260px;height:180px;position:relative;transform-style:preserve-3d;perspective:900px}
+.envelope-body{position:absolute;inset:0;border-radius:12px;background:linear-gradient(180deg,#ffdfe9,#ffd1e6);box-shadow:var(--shadow)}
+.envelope-flap{position:absolute;left:10px;right:10px;top:-48px;height:120px;background:linear-gradient(180deg,#ffb3d1,#ff9ec7);transform-origin:top center;border-radius:8px;box-shadow:0 8px 14px rgba(0,0,0,0.06);transition:transform 0.9s cubic-bezier(.2,.9,.3,1)}
+.envelope.open .envelope-flap{transform:rotateX(180deg) translateY(-6px)}
+.letter{position:absolute;left:14px;right:14px;top:18px;height:120px;background:linear-gradient(180deg,#fff,#fff1);border-radius:8px;padding:14px;box-shadow:0 6px 20px rgba(0,0,0,0.06);transition:transform 0.9s cubic-bezier(.2,.9,.3,1),opacity .4s}
+.letter.show{transform:translateY(-80px) rotate(-3deg);opacity:1}
+.letter.hidden{opacity:0}
+.confetti{position:absolute;inset:0;pointer-events:none}
+
+/* Page 3 */
+.letter-card{background:linear-gradient(180deg,var(--glass),rgba(255,255,255,0.85));padding:20px;border-radius:16px;box-shadow:var(--shadow);display:inline-block;max-width:560px}
+.message{font-size:18px;color:#5a2a50;line-height:1.5}
+.sticker{width:80px;height:80px;position:absolute;right:6%;top:55%;transform:translateY(-50%)}
+
+/* Playlist */
+.tracks{display:flex;gap:16px;overflow:auto;padding:12px 6px;margin-bottom:14px}
+.track{min-width:150px;border-radius:12px;padding:6px;background:linear-gradient(180deg,#fff,#fff8);box-shadow:0 8px 20px rgba(0,0,0,0.06);cursor:pointer;transition:transform .25s}
+.track:focus{outline:3px solid rgba(155,55,95,0.12)}
+.track.selected{transform:translateY(-6px);box-shadow:0 14px 30px rgba(155,55,95,0.08)}
+.track-art{width:100%;height:100px;object-fit:cover;border-radius:8px}
+.track-title{padding-top:8px;font-weight:600}
+.player{margin:12px auto;max-width:720px}
+.icon-btn{font-size:20px;padding:8px 12px;border-radius:10px;border:none;cursor:pointer}
+.progress-wrap{display:inline-block;vertical-align:middle;width:54%;margin:0 12px}
+input[type=range]{width:100%}
+.time{font-size:12px;margin-top:6px}
+.now-playing{font-weight:600;margin-bottom:8px}
+
+/* GIF grid */
+.gif-grid{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:18px 0}
+.gif-card{width:220px;background:linear-gradient(180deg,#fff,#fff8);border-radius:12px;padding:8px;box-shadow:var(--shadow);cursor:pointer}
+.gif{width:100%;height:160px;object-fit:cover;border-radius:8px}
+.gif-text{padding-top:8px;font-weight:600}
+
+/* Responsive */
+@media (max-width:600px){
+  .gf-photo{width:180px;height:180px}
+  .track{min-width:130px}
+  .sticker{display:none}
+}
+```
+
+---
+
+## script.js
+
+```javascript
+// Simple, lightweight JS to drive navigation, envelope animation, audio player and replay logic
+(function(){
+  const pages = ['page1','page2','page3','page4','page5'];
+  const audio = document.getElementById('global-audio');
+  let currentTrack = null;
+  let envelopeAnimating = false;
+
+  function showSection(id){
+    pages.forEach(p=>document.getElementById(p).classList.add('hidden'));
+    const el = document.getElementById(id);
+    el.classList.remove('hidden');
+    // Focus heading for accessibility
+    const heading = el.querySelector('.page-heading') || el.querySelector('.title') || el.querySelector('h2');
+    if(heading){ heading.tabIndex = -1; heading.focus(); }
+  }
+
+  // initial
+  showSection('page1');
+
+  // Page 1 -> 2
+  document.getElementById('toPage2').addEventListener('click',()=>{
+    showSection('page2');
+  });
+
+  // Envelope open animation
+  const envelope = document.getElementById('envelope');
+  const envelopeFlap = document.getElementById('envelope-flap');
+  const letter = document.getElementById('letter');
+  const confetti = document.getElementById('confetti');
+  const openBtn = document.getElementById('openLetterBtn');
+  const skipBtn = document.getElementById('skipEnvelope');
+
+  function playEnvelopeAnimation(){
+    if(envelopeAnimating) return;
+    envelopeAnimating = true;
+    // open
+    envelope.classList.add('open');
+    // show letter after brief delay
+    setTimeout(()=>{
+      letter.classList.remove('hidden');
+      letter.classList.add('show');
+      // confetti simple particles: create small dots
+      for(let i=0;i<16;i++){
+        const el = document.createElement('span');
+        el.className = 'confetti-piece';
+        el.style.position='absolute';
+        el.style.width='8px'; el.style.height='8px';
+        el.style.left=(30+Math.random()*200)+'px';
+        el.style.top=(10+Math.random()*160)+'px';
+        el.style.background=['#ffb3d1','#ffd6e8','#e9d6ff'][Math.floor(Math.random()*3)];
+        el.style.borderRadius='4px';
+        el.style.opacity='0.95';
+        confetti.appendChild(el);
+        // fall animation
+        el.animate([{transform:'translateY(0) rotate(0deg)',opacity:1},{transform:'translateY(120px) rotate(180deg)',opacity:0}],{duration:1500+Math.random()*1000,delay:Math.random()*200});
+      }
+    },420);
+
+    // After full animation reveal next button
+    setTimeout(()=>{
+      const cont = document.createElement('button');
+      cont.className='big-btn'; cont.textContent='Continue ♡';
+      cont.setAttribute('aria-label','Continue to letter');
+      cont.addEventListener('click',()=>{
+        showSection('page3');
+        // clear confetti
+        confetti.innerHTML='';
+      });
+      // put below envelope
+      envelope.parentElement.appendChild(cont);
+      envelopeAnimating = false;
+    },2400);
+  }
+
+  openBtn.addEventListener('click',playEnvelopeAnimation);
+  skipBtn.addEventListener('click',()=>{
+    // set final state immediately and go to page3
+    envelope.classList.add('open');
+    letter.classList.remove('hidden');
+    letter.classList.add('show');
+    confetti.innerHTML='';
+    showSection('page3');
+  });
+
+  // Page 3 -> 4
+  document.getElementById('toPage4').addEventListener('click',()=>{
+    showSection('page4');
+  });
+
+  // Tracks handling
+  const trackEls = Array.from(document.querySelectorAll('.track'));
+  const nowPlaying = document.getElementById('nowPlaying');
+  const playPause = document.getElementById('playPause');
+  const seekBar = document.getElementById('seekBar');
+  const currentTime = document.getElementById('currentTime');
+  const durationEl = document.getElementById('duration');
+  const volume = document.getElementById('volume');
+  const toPage5 = document.getElementById('toPage5');
+
+  // select track
+  function selectTrack(el){
+    if(currentTrack && currentTrack !== el){
+      // stop previous
+      audio.pause(); audio.currentTime = 0;
+      currentTrack.classList.remove('selected');
+    }
+    currentTrack = el;
+    el.classList.add('selected');
+    const src = el.dataset.src;
+    const title = el.dataset.title || 'Track';
+    audio.src = src;
+    nowPlaying.textContent = `Now Playing: ${title}`;
+    updatePlayIcon();
+  }
+
+  trackEls.forEach(t=>{
+    t.addEventListener('click',()=>selectTrack(t));
+    t.addEventListener('keydown',(e)=>{ if(e.key==='Enter' || e.key===' ') selectTrack(t); });
+  });
+
+  // play/pause
+  playPause.addEventListener('click',()=>{
+    if(!audio.src) return; // nothing selected
+    if(audio.paused){ audio.play(); } else { audio.pause(); }
+    updatePlayIcon();
+  });
+
+  function updatePlayIcon(){
+    playPause.textContent = audio.paused ? '▶️' : '⏸️';
+    if(audio.src && !audio.paused){ nowPlaying.classList.add('playing'); } else { nowPlaying.classList.remove('playing'); }
+  }
+
+  // audio events
+  audio.addEventListener('loadedmetadata',()=>{
+    durationEl.textContent = formatTime(audio.duration);
+    seekBar.max = Math.floor(audio.duration);
+  });
+  audio.addEventListener('timeupdate',()=>{
+    seekBar.value = Math.floor(audio.currentTime);
+    currentTime.textContent = formatTime(audio.currentTime);
+  });
+  audio.addEventListener('ended',()=>{ updatePlayIcon(); audio.currentTime = 0; });
+
+  seekBar.addEventListener('input',()=>{ audio.currentTime = seekBar.value; });
+  volume.addEventListener('input',()=>{ audio.volume = volume.value; });
+
+  function formatTime(sec){
+    if(!sec || isNaN(sec)) return '0:00';
+    const s = Math.floor(sec%60).toString().padStart(2,'0');
+    const m = Math.floor(sec/60);
+    return `${m}:${s}`;
+  }
+
+  toPage5.addEventListener('click',()=> showSection('page5'));
+
+  // GIF cards flip (simple reload on click to reset animation later)
+  const gifCards = Array.from(document.querySelectorAll('.gif-card'));
+  gifCards.forEach(c=>{
+    c.addEventListener('click',()=>{
+      const img = c.querySelector('.gif');
+      // simulate flip by toggling transform
+      c.style.transform = 'rotateY(180deg)';
+      setTimeout(()=> c.style.transform='rotateY(0deg)',800);
+      // no persistent flip; just a little fun
+    });
+  });
+
+  // Replay implementation
+  const replayBtn = document.getElementById('replayBtn');
+  replayBtn.addEventListener('click',resetCard);
+
+  function resetCard(){
+    // stop audio
+    audio.pause(); audio.currentTime = 0; audio.removeAttribute('src'); currentTrack && currentTrack.classList.remove('selected'); currentTrack = null;
+    // reset seek
+    seekBar.value = 0; currentTime.textContent='0:00'; durationEl.textContent='0:00';
+    // reset envelope
+    envelope.classList.remove('open');
+    letter.classList.add('hidden'); letter.classList.remove('show');
+    confetti.innerHTML = '';
+    // reset gif images by reloading their src
+    const gifs = document.querySelectorAll('.gif');
+    gifs.forEach(g=>{ const src = g.src; g.src = ''; setTimeout(()=> g.src = src,50); });
+    // remove any dynamically added continue button on envelope
+    const cont = document.querySelector('#envelope + .big-btn');
+    if(cont) cont.remove();
+    // go to page1
+    showSection('page1');
+    // restart simple animations by reflow
+    const photo = document.querySelector('.gf-photo');
+    photo.style.animation = 'none';
+    void photo.offsetWidth;
+    photo.style.animation = '';
+  }
+
+  // expose functions for debugging (optional)
+  window.showSection = showSection;
+  window.resetCard = resetCard;
+
+})();
+```
+
+---
+
+### Notes
+
+* All asset paths used in the files match your requested structure (assets/images/, assets/music/, assets/gifs/, assets/stickers/). Replace with your real files as needed.
+* Accessibility: buttons have `aria-label`s, images have alt texts, focus moves to headings when pages change.
+* Performance: animations are CSS-based where possible, audio uses a single `<audio>` element.
+
+If you'd like I can also provide a single self-contained `index.html` that inlines CSS and JS (for easy QR packaging) or create a downloadable zip. Let me know which you prefer.
