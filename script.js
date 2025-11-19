@@ -20,7 +20,7 @@ const playBtn = document.getElementById('play-pause');
 const seek = document.getElementById('seek');
 const currentTimeEl = document.getElementById('current-time');
 const durationEl = document.getElementById('duration');
-const volumeEl = document.getElementById('volume');
+const volumeEl = document.getElementById('volume'); // <-- keep consistent name
 const nowPlaying = document.getElementById('now-playing');
 const playerTitle = document.getElementById('player-title');
 
@@ -175,8 +175,8 @@ seek.addEventListener('change', ()=>{
   audio.currentTime = seek.value;
   seekUpdating = false;
 });
-volume.addEventListener('input', ()=> {
-  audio.volume = volume.value;
+volumeEl.addEventListener('input', ()=> { // <-- fixed variable name
+  audio.volume = volumeEl.value;
 });
 
 /* When track ends */
@@ -223,4 +223,49 @@ function resetCard(){
     el.style.transform = 'scale(1)';
   });
 
-  // envelope reset: clos
+  // envelope reset: close flap and hide letter
+  flap.style.transition = '';
+  flap.style.transform = 'rotateX(0deg)';
+  letter.classList.add('hidden');
+  letter.style.transform = '';
+  confetti.classList.remove('show');
+  envelopeOpen = false;
+  page2Continue.classList.add('hidden');
+  openLetterBtn.disabled = false;
+
+  // reset gif flips
+  document.querySelectorAll('.gif-card.flipped').forEach(c => c.classList.remove('flipped'));
+
+  // reset page to page1
+  showSection('page1');
+
+  // replay subtle animations (retrigger by toggling class)
+  const gf = document.querySelector('.gf-photo');
+  if(gf){
+    gf.style.animation = 'none';
+    void gf.offsetWidth;
+    gf.style.animation = '';
+  }
+
+  // reset focus
+  const heading = sections.page1.querySelector('.heading');
+  if(heading) heading.focus?.();
+}
+
+/* Ensure keyboard accessibility: Enter on track-card toggles */
+document.querySelectorAll('.track-card').forEach(e=>{
+  e.addEventListener('keydown',(ev)=>{
+    if(ev.key === 'Enter' || ev.key === ' '){
+      ev.preventDefault();
+      e.click();
+    }
+  });
+});
+
+/* On initial load */
+window.addEventListener('load', ()=>{
+  showSection('page1');
+  // set defaults
+  updatePlayBtn();
+  volumeEl.value = audio.volume; // <-- use volumeEl
+});
