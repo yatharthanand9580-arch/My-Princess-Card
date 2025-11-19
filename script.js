@@ -8,7 +8,7 @@
 */
 
 const sections = {
-  page1: document.getElementById('page1'),
+  page1: document.getElementById('page2'),
   page2: document.getElementById('page2'),
   page3: document.getElementById('page3'),
   page4: document.getElementById('page4'),
